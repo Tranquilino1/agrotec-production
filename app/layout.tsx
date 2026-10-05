@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: 'Agrónomo - IA Agrícola Guinea Ecuatorial',
   description: 'Diagnóstico inteligente de cultivos, plagas y enfermedades botánicas para Guinea Ecuatorial con IA Vision y almacenamiento Turso Cloud.',
@@ -11,8 +14,8 @@ export const metadata: Metadata = {
     title: 'Agrónomo GE'
   },
   icons: {
-    icon: '/icons/icon-192x192.png',
-    apple: '/icons/icon-192x192.png'
+    icon: '/icons/app-icon-3d.png',
+    apple: '/icons/app-icon-3d.png'
   }
 };
 

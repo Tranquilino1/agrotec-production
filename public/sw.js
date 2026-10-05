@@ -1,34 +1,36 @@
-const CACHE_NAME = 'agronomo-ge-cache-v1';
+const CACHE_NAME = 'agronomo-ge-cache-v3.2.0';
 const OFFLINE_URL = '/offline.html';
 
-const ASSETS_TO_CACHE = [
-  '/',
-  '/manifest.json',
+const STATIC_ASSETS = [
   '/offline.html',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  '/icons/icon.svg',
-  '/favicon.svg'
+  '/manifest.json',
+  '/favicon.svg',
+  '/icons/app-icon-3d.png',
+  '/icons/scanner-3d.png',
+  '/icons/shield-3d.png',
+  '/qr-apk.svg'
 ];
 
-// 1. Instalación del Service Worker: cachear activos estáticos y página offline
+// 1. Instalación: forzar actualización inmediata
 self.addEventListener('install', (event) => {
+  console.log('[Agrónomo PWA] Instalando Service Worker v3.2.0...');
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Agrónomo PWA] Pre-cacheando recursos para modo sin conexión...');
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+      return cache.addAll(STATIC_ASSETS);
+    })
   );
 });
 
-// 2. Activación: limpiar caches obsoletos
+// 2. Activación: purgar inmediatamente cualquier caché antiguo
 self.addEventListener('activate', (event) => {
+  console.log('[Agrónomo PWA] Activando Service Worker v3.2.0 y purgando cachés anteriores...');
   event.waitUntil(
-    caches.keys().then((keyList) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        keyList.map((key) => {
+        keys.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('[Agrónomo PWA] Eliminando cache antiguo:', key);
+            console.log('[Agrónomo PWA] Purgando caché obsoleto:', key);
             return caches.delete(key);
           }
         })
@@ -37,36 +39,44 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. Estrategia de Fetch: Network-first con fallback a Cache y página offline
+// 3. Estrategia de Fetch: Network-First para HTML y chunks
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // Para peticiones de navegación (páginas HTML)
+  // APIs y _next chunks dinámicos: DIRECTO A LA RED SIEMPRE (cero caché obsoleto)
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Navegación (Páginas HTML): Network-First estricto con fallback a offline.html
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match(OFFLINE_URL);
-      })
+      fetch(event.request)
+        .then((response) => {
+          return response;
+        })
+        .catch(() => {
+          return caches.match(OFFLINE_URL);
+        })
     );
     return;
   }
 
-  // Para imágenes y recursos estáticos: Stale-While-Revalidate
+  // Activos estáticos cacheados (imágenes, iconos): Stale-While-Revalidate
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+    caches.match(event.request).then((cached) => {
+      const networked = fetch(event.request).then((res) => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
-        return networkResponse;
-      }).catch(() => cachedResponse);
+        return res;
+      }).catch(() => cached);
 
-      return cachedResponse || fetchPromise;
+      return cached || networked;
     })
   );
 });

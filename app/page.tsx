@@ -71,14 +71,52 @@ export default function AgronomoPwaApp() {
   ]);
   const [batchCount, setBatchCount] = useState(10);
 
-  // Registrar Service Worker al montar
+  // Estado para Calculadora Rápida de Mochilas (15L) en Finca
+  const [calcProduct, setCalcProduct] = useState<'cobre' | 'neem' | 'bordeles' | 'foliar'>('cobre');
+  const [calcBackpacks, setCalcBackpacks] = useState(2);
+
+  // Función para forzar limpieza total de caché PWA
+  const handleClearCacheAndReload = async () => {
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const reg of registrations) {
+          await reg.unregister();
+        }
+      }
+      window.location.reload();
+    } catch {
+      window.location.reload();
+    }
+  };
+
+  // Registrar Service Worker y purgar cachés antiguos automáticamente
   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').then((reg) => {
-        console.log('[Agrónomo PWA] Service Worker activo:', reg.scope);
-      }).catch((err) => {
-        console.error('[Agrónomo PWA] Error SW:', err);
-      });
+    if (typeof window !== 'undefined') {
+      // Purgar caches de versiones anteriores
+      if ('caches' in window) {
+        caches.keys().then((names) => {
+          names.forEach((name) => {
+            if (name !== 'agronomo-ge-cache-v3.2.0') {
+              console.log('[Agrónomo PWA] Purgando caché anterior:', name);
+              caches.delete(name);
+            }
+          });
+        });
+      }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then((reg) => {
+          console.log('[Agrónomo PWA] Service Worker activo v3.2.0:', reg.scope);
+          reg.update();
+        }).catch((err) => {
+          console.error('[Agrónomo PWA] Error SW:', err);
+        });
+      }
     }
   }, []);
 
@@ -97,33 +135,16 @@ export default function AgronomoPwaApp() {
     }
   };
 
-  // Cargar imagen de muestra de Cacao (Demo en 1-Clic sin restricciones)
-  const handleLoadDemoImage = async () => {
-    try {
-      const response = await fetch('/sample-cacao.jpg');
-      const blob = await response.blob();
-      const file = new File([blob], 'sample-cacao.jpg', { type: 'image/jpeg' });
-      setImageFile(file);
-      setImagePreview('/sample-cacao.jpg');
-      setIsDemoMode(true);
-      setDiagnosticResult(null);
-    } catch (err) {
-      console.error('Error cargando demo:', err);
-    }
-  };
-
-  // Enviar imagen al motor de IA multimodal
-  const handleAnalyzePlant = async () => {
-    if (!imageFile) return;
+  // Función central para ejecutar diagnóstico
+  const executeDiagnosis = async (file: File, demo: boolean) => {
     setIsScanning(true);
-
     try {
       const formData = new FormData();
-      formData.append('image', imageFile);
+      formData.append('image', file);
       formData.append('phone_number', phoneNumber);
       formData.append('province', 'Bioko Norte');
       formData.append('organ', selectedOrgan);
-      if (isDemoMode) {
+      if (demo) {
         formData.append('is_demo', 'true');
       }
 
@@ -135,7 +156,7 @@ export default function AgronomoPwaApp() {
       const data = await res.json();
       if (res.ok) {
         setDiagnosticResult(data.data);
-        if (!isDemoMode && data.quota_remaining !== undefined) {
+        if (!demo && data.quota_remaining !== undefined) {
           setQuotaRemaining(data.quota_remaining);
         }
       } else {
@@ -147,6 +168,28 @@ export default function AgronomoPwaApp() {
     } finally {
       setIsScanning(false);
     }
+  };
+
+  // Cargar imagen de muestra de Cacao (Demo en 1-Clic automática)
+  const handleLoadDemoImage = async () => {
+    try {
+      const response = await fetch('/sample-cacao.jpg');
+      const blob = await response.blob();
+      const file = new File([blob], 'sample-cacao.jpg', { type: 'image/jpeg' });
+      setImageFile(file);
+      setImagePreview('/sample-cacao.jpg');
+      setIsDemoMode(true);
+      setDiagnosticResult(null);
+      await executeDiagnosis(file, true);
+    } catch (err) {
+      console.error('Error cargando demo:', err);
+    }
+  };
+
+  // Enviar imagen seleccionada manualmente
+  const handleAnalyzePlant = async () => {
+    if (!imageFile) return;
+    await executeDiagnosis(imageFile, isDemoMode);
   };
 
   // Canjear código prepago
@@ -583,6 +626,131 @@ export default function AgronomoPwaApp() {
               <Sparkles className="w-4 h-4 text-emerald-900" />
               <span>Ejecutar Diagnóstico Fitosanitario con IA</span>
             </button>
+          )}
+
+          {/* ============================================================== */}
+          {/* CALCULADORA RÁPIDA DE MOCHILAS (15L) EN FINCA                  */}
+          {/* ============================================================== */}
+          {!diagnosticResult && (
+            <section className="ios-glass rounded-3xl p-5 border border-emerald-500/25 shadow-xl space-y-3.5 bg-gradient-to-br from-emerald-950/30 via-slate-900/40 to-black/60">
+              <div className="flex items-start justify-between gap-2 border-b border-white/10 pb-3">
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-base">🎒</span>
+                    <h3 className="font-extrabold text-sm text-white">Calculadora de Mochilas (15 Litros)</h3>
+                  </div>
+                  <p className="text-[11px] text-slate-300">
+                    Dosificación exacta calibrada para pulverizadores de espalda en Guinea Ecuatorial
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full flex-shrink-0">
+                  Uso en Finca
+                </span>
+              </div>
+
+              {/* Selector de Producto */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-semibold text-slate-300">Selecciona el tratamiento fitosanitario:</label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {[
+                    { id: 'cobre', name: 'Oxicloruro Cobre', sub: 'Fungicida Cacao/Café', icon: '🍄' },
+                    { id: 'neem', name: 'Aceite de Neem / Jabón', sub: 'Insecticida Bio Plagas', icon: '🌿' },
+                    { id: 'bordeles', name: 'Caldo Bordelés', sub: 'Cobre + Cal tradicional', icon: '🧪' },
+                    { id: 'foliar', name: 'Abono Foliar NPK', sub: 'Vigorizante Foliar', icon: '🌱' },
+                  ].map((prod) => (
+                    <button
+                      key={prod.id}
+                      type="button"
+                      onClick={() => setCalcProduct(prod.id as any)}
+                      className={`p-2 rounded-xl text-left border transition-all ${
+                        calcProduct === prod.id
+                          ? 'bg-emerald-500/25 border-emerald-400 text-white shadow'
+                          : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm">{prod.icon}</span>
+                        <p className="font-bold text-[11px] text-white leading-tight truncate">{prod.name}</p>
+                      </div>
+                      <p className="text-[9px] text-slate-300 truncate mt-0.5">{prod.sub}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Contador de Mochilas y Cálculos */}
+              <div className="bg-black/50 rounded-2xl p-3.5 border border-white/10 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-200">
+                    ¿Cuántas mochilas vas a preparar?
+                  </span>
+                  <div className="flex items-center gap-2 bg-white/10 px-2.5 py-1 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setCalcBackpacks(Math.max(1, calcBackpacks - 1))}
+                      className="text-base font-black text-emerald-400 hover:text-white px-1 leading-none"
+                    >
+                      -
+                    </button>
+                    <span className="font-mono font-bold text-white text-xs">
+                      {calcBackpacks} {calcBackpacks === 1 ? 'mochila' : 'mochilas'} ({calcBackpacks * 15}L)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setCalcBackpacks(calcBackpacks + 1)}
+                      className="text-base font-black text-emerald-400 hover:text-white px-1 leading-none"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Receta calculada */}
+                {(() => {
+                  let doseText = '';
+                  let adherenceText = `${calcBackpacks * 1} Tapón (${calcBackpacks * 10} ml) Jabón/Adherente`;
+                  let approxCost = `${calcBackpacks * 1500} - ${calcBackpacks * 2500} FCFA`;
+                  let coverageText = `~${calcBackpacks * 35} árboles adultos / ${calcBackpacks * 150}m²`;
+
+                  if (calcProduct === 'cobre') {
+                    doseText = `${calcBackpacks * 4} Cucharadas soperas (${calcBackpacks * 40}g de Cobre al 50%)`;
+                  } else if (calcProduct === 'neem') {
+                    doseText = `${calcBackpacks * 3} Tapones dosificadores (${calcBackpacks * 45}ml de extracto)`;
+                    approxCost = `${calcBackpacks * 1000} FCFA`;
+                  } else if (calcProduct === 'bordeles') {
+                    doseText = `${calcBackpacks * 5} Cucharadas (${calcBackpacks * 50}g Sulfato + ${calcBackpacks * 50}g Cal)`;
+                    approxCost = `${calcBackpacks * 800} FCFA`;
+                  } else {
+                    doseText = `${calcBackpacks * 2.5} Cucharadas (${calcBackpacks * 30}g soluble foliar)`;
+                    approxCost = `${calcBackpacks * 1200} FCFA`;
+                  }
+
+                  return (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-[11px]">
+                        <div className="bg-white/5 p-2.5 rounded-xl border border-white/5">
+                          <p className="text-[10px] text-slate-400">Dosis de Producto:</p>
+                          <p className="text-xs font-bold text-emerald-300 mt-0.5">{doseText}</p>
+                        </div>
+                        <div className="bg-white/5 p-2.5 rounded-xl border border-white/5">
+                          <p className="text-[10px] text-slate-400">Adherente Antilluvia:</p>
+                          <p className="text-xs font-bold text-sky-300 mt-0.5">{adherenceText}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center text-[10px] text-slate-300 px-1 pt-1 border-t border-white/10">
+                        <span>🌾 Cobertura: {coverageText}</span>
+                        <span>💰 Coste estimado: {approxCost}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <p className="text-[10px] text-emerald-400/90 italic flex items-center gap-1 px-1">
+                💡 <span>En climas lluviosos de Guinea Ecuatorial, pulverizar temprano sin sol directo y usar boquilla cónica.</span>
+              </p>
+            </section>
           )}
 
           {/* ============================================================== */}
@@ -1037,6 +1205,39 @@ export default function AgronomoPwaApp() {
           </div>
         </section>
       )}
+
+      {/* ============================================================== */}
+      {/* 4. FOOTER INSTITUCIONAL & CONTROL DE CACHÉ PWA                 */}
+      {/* ============================================================== */}
+      <footer className="w-full max-w-xl px-4 pb-12 flex flex-col items-center text-center gap-3 text-xs text-slate-400 border-t border-white/10 pt-6">
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg overflow-hidden border border-white/20 bg-emerald-950 flex-shrink-0">
+            <img src="/icons/app-icon-3d.png" alt="Agrónomo Icon" className="w-full h-full object-cover" />
+          </div>
+          <span className="font-extrabold text-white">Agrónomo GE</span>
+          <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+            v3.2.0 • Top 10 UX Pro
+          </span>
+        </div>
+
+        <p className="text-[11px] text-slate-400 max-w-md leading-relaxed">
+          Clínica Fitosanitaria Digital de Guinea Ecuatorial. Diseñado para productores de Bioko, Litoral, Kie-Ntem, Centro Sur, Wele-Nzas y Annobón.
+        </p>
+
+        {/* Botón de Purga de Caché */}
+        <button
+          onClick={handleClearCacheAndReload}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 active:scale-95 text-slate-200 border border-white/15 text-[11px] font-semibold transition-all shadow"
+          title="Forzar actualización y vaciar caché PWA"
+        >
+          <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
+          <span>🔄 Limpiar Caché y Actualizar App</span>
+        </button>
+
+        <p className="text-[10px] text-slate-500">
+          © 2026 Agrónomo GE. Todos los derechos reservados.
+        </p>
+      </footer>
 
       {/* ============================================================== */}
       {/* MODAL 1: CÓDIGO QR AMPLIADO PARA INSTALACIÓN RÁPIDA           */}
