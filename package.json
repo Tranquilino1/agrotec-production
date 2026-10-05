@@ -12,9 +12,11 @@
     "@google/generative-ai": "^0.21.0",
     "@libsql/client": "^0.14.0",
     "@supabase/supabase-js": "^2.45.4",
+    "@types/qrcode": "^1.5.6",
     "clsx": "^2.1.1",
     "lucide-react": "^0.447.0",
     "next": "^14.2.13",
+    "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^2.5.2"

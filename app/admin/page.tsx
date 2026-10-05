@@ -65,10 +65,12 @@ export default function AdminDashboard() {
       {/* Top Navbar */}
       <header className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-sky-500 p-0.5 shadow-lg shadow-emerald-500/20">
-            <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-2xl">
-              🇬🇶
-            </div>
+          <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg border border-white/20 bg-emerald-950 flex-shrink-0">
+            <img 
+              src="/icons/app-icon-3d.png" 
+              alt="Agrónomo 3D Icon" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
             <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-teal-300 to-sky-400">
@@ -96,7 +98,7 @@ export default function AdminDashboard() {
             🛡️ Supabase Backup
           </a>
           <a
-            href="https://vercel.com/thetrapkinzofafrica-4878s-projects/agrotec-production"
+            href="https://vercel.com/thetrapkinzofafrica-4878s-projects/agronomo-ge"
             target="_blank"
             rel="noreferrer"
             className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-white/10 text-slate-300 text-xs font-medium transition"
