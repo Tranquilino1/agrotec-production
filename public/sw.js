@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agronomo-ge-cache-v3.2.0';
+const CACHE_NAME = 'agronomo-ge-cache-v3.3.0';
 const OFFLINE_URL = '/offline.html';
 
 const STATIC_ASSETS = [
@@ -13,7 +13,7 @@ const STATIC_ASSETS = [
 
 // 1. Instalación: forzar actualización inmediata
 self.addEventListener('install', (event) => {
-  console.log('[Agrónomo PWA] Instalando Service Worker v3.2.0...');
+  console.log('[Agrónomo PWA] Instalando Service Worker v3.3.0...');
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -24,7 +24,7 @@ self.addEventListener('install', (event) => {
 
 // 2. Activación: purgar inmediatamente cualquier caché antiguo
 self.addEventListener('activate', (event) => {
-  console.log('[Agrónomo PWA] Activando Service Worker v3.2.0 y purgando cachés anteriores...');
+  console.log('[Agrónomo PWA] Activando Service Worker v3.3.0 y purgando cachés anteriores...');
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
