@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background subtle gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F4FBF6" />
+    </linearGradient>
+    
+    <!-- Primary Green Gradient (Equatorial Guinea Green) -->
+    <linearGradient id="primaryGreen" x1="0%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#006020" />
+      <stop offset="50%" stop-color="#00732F" />
+      <stop offset="100%" stop-color="#229D45" />
+    </linearGradient>
+
+    <!-- Deep Green -->
+    <linearGradient id="darkGreen" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#004D1A" />
+      <stop offset="100%" stop-color="#00732F" />
+    </linearGradient>
+
+    <!-- Equatorial Blue Gradient -->
+    <linearGradient id="equatorialBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0072CE" />
+      <stop offset="100%" stop-color="#0050A4" />
+    </linearGradient>
+
+    <!-- Equatorial Red Gradient -->
+    <linearGradient id="equatorialRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF333A" />
+      <stop offset="100%" stop-color="#E31B23" />
+    </linearGradient>
+    
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#004D1A" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <!-- Background Base Container -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#E1EFE4" stroke-width="6" />
+
+  <!-- Outer Ring Shield / Soil arc -->
+  <path d="M 120 330 C 160 410, 352 410, 392 330 C 350 380, 162 380, 120 330 Z" fill="url(#primaryGreen)" filter="url(#softShadow)" />
+
+  <!-- Blue Water / Atlantic Arc (Equatorial Guinea secondary) -->
+  <path d="M 285 345 C 315 345, 340 330, 355 305 C 340 320, 310 330, 285 328 Z" fill="url(#equatorialBlue)" />
+  <path d="M 275 325 C 295 325, 320 310, 335 285 C 318 298, 290 305, 270 302 Z" fill="url(#equatorialBlue)" opacity="0.85" />
+
+  <!-- Center Stem / Trunk (Ceiba Inspired) -->
+  <path d="M 246 345 Q 256 260 256 160 Q 256 260 266 345 Z" fill="#004D1A" />
+  
+  <!-- Left Main Leaf -->
+  <path d="M 254 260 C 220 250, 160 210, 155 140 C 215 145, 250 205, 254 260 Z" fill="url(#primaryGreen)" filter="url(#softShadow)" />
+  <!-- Left Leaf Inner Accent / Rib -->
+  <path d="M 252 250 C 225 240, 185 210, 180 160 C 215 170, 245 215, 252 250 Z" fill="#2ECC71" opacity="0.7" />
+
+  <!-- Right Main Leaf -->
+  <path d="M 258 240 C 295 230, 355 190, 360 120 C 300 125, 265 185, 258 240 Z" fill="url(#darkGreen)" filter="url(#softShadow)" />
+  <!-- Right Leaf Inner Accent -->
+  <path d="M 260 230 C 290 220, 330 190, 335 140 C 300 150, 270 195, 260 230 Z" fill="#27AE60" opacity="0.6" />
+
+  <!-- Top Sprout / Crown -->
+  <path d="M 256 160 C 240 130, 245 90, 256 70 C 267 90, 272 130, 256 160 Z" fill="url(#primaryGreen)" />
+
+  <!-- Bottom Seed / Origin Node (Equatorial Red) -->
+  <circle cx="256" cy="345" r="16" fill="url(#equatorialRed)" filter="url(#softShadow)" />
+  <circle cx="252" cy="341" r="5" fill="#FFFFFF" opacity="0.8" />
+
+  <!-- Typographic Mark -->
+  <g transform="translate(0, 440)">
+    <text x="256" y="0" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="34" letter-spacing="4" fill="#004D1A">AGRÓNOMO</text>
+    <text x="256" y="24" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="13" letter-spacing="3" fill="#0072CE">GUINEA ECUATORIAL</text>
+  </g>
+</svg>
