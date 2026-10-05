@@ -289,33 +289,89 @@ export default function AgronomoPwaApp() {
                 <p className="text-xs text-gray-300 mt-1.5 leading-relaxed">{diagnosticResult.description}</p>
               </div>
 
+              {/* Síntomas Detectados */}
+              {diagnosticResult.symptoms && (
+                <div className="bg-black/30 border border-white/5 rounded-2xl p-3.5 text-xs">
+                  <p className="font-bold text-emerald-400 mb-1.5 flex items-center gap-1.5">
+                    🔍 Síntomas Visuales Detectados:
+                  </p>
+                  {Array.isArray(diagnosticResult.symptoms) ? (
+                    <ul className="list-disc list-inside text-gray-300 space-y-1 pl-1">
+                      {diagnosticResult.symptoms.map((s: string, idx: number) => (
+                        <li key={idx}>{s}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-300 pl-1 leading-relaxed">{String(diagnosticResult.symptoms)}</p>
+                  )}
+                </div>
+              )}
+
               {/* Tratamientos */}
               <div className="space-y-3">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400">
                   Plan de Tratamiento Recomendado:
                 </h4>
 
-                <div className="bg-emerald-950/40 border border-emerald-500/20 rounded-2xl p-3 text-xs space-y-1">
-                  <p className="font-bold text-emerald-300 flex items-center gap-1.5">
-                    🌱 Tratamiento Ecológico / Casero (GE):
-                  </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-1 pl-1">
-                    {diagnosticResult.treatments?.organic?.map((t: string, idx: number) => (
-                      <li key={idx}>{t}</li>
-                    ))}
-                  </ul>
-                </div>
+                {/* Tratamiento Ecológico / Casero (GE) */}
+                {(diagnosticResult.treatments?.biological || diagnosticResult.treatments?.organic) && (
+                  <div className="bg-emerald-950/40 border border-emerald-500/20 rounded-2xl p-3 text-xs space-y-1.5">
+                    <p className="font-bold text-emerald-300 flex items-center gap-1.5">
+                      🌱 Tratamiento Ecológico / Casero (GE):
+                    </p>
+                    {Array.isArray(diagnosticResult.treatments.biological || diagnosticResult.treatments.organic) ? (
+                      <ul className="list-disc list-inside text-gray-300 space-y-1 pl-1">
+                        {(diagnosticResult.treatments.biological || diagnosticResult.treatments.organic).map((t: string, idx: number) => (
+                          <li key={idx}>{t}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-300 pl-1 leading-relaxed">
+                        {String(diagnosticResult.treatments.biological || diagnosticResult.treatments.organic)}
+                      </p>
+                    )}
+                  </div>
+                )}
 
-                <div className="bg-blue-950/40 border border-blue-500/20 rounded-2xl p-3 text-xs space-y-1">
-                  <p className="font-bold text-blue-300 flex items-center gap-1.5">
-                    🧪 Tratamiento Fitosanitario:
-                  </p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-1 pl-1">
-                    {diagnosticResult.treatments?.chemical?.map((t: string, idx: number) => (
-                      <li key={idx}>{t}</li>
-                    ))}
-                  </ul>
-                </div>
+                {/* Tratamiento Fitosanitario / Químico */}
+                {diagnosticResult.treatments?.chemical && (
+                  <div className="bg-blue-950/40 border border-blue-500/20 rounded-2xl p-3 text-xs space-y-1.5">
+                    <p className="font-bold text-blue-300 flex items-center gap-1.5">
+                      🧪 Tratamiento Fitosanitario:
+                    </p>
+                    {Array.isArray(diagnosticResult.treatments.chemical) ? (
+                      <ul className="list-disc list-inside text-gray-300 space-y-1 pl-1">
+                        {diagnosticResult.treatments.chemical.map((t: string, idx: number) => (
+                          <li key={idx}>{t}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-300 pl-1 leading-relaxed">
+                        {String(diagnosticResult.treatments.chemical)}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Prevención y Manejo Cultural */}
+                {diagnosticResult.treatments?.prevention && (
+                  <div className="bg-amber-950/40 border border-amber-500/20 rounded-2xl p-3 text-xs space-y-1.5">
+                    <p className="font-bold text-amber-300 flex items-center gap-1.5">
+                      🛡️ Prevención y Manejo en Finca:
+                    </p>
+                    {Array.isArray(diagnosticResult.treatments.prevention) ? (
+                      <ul className="list-disc list-inside text-gray-300 space-y-1 pl-1">
+                        {diagnosticResult.treatments.prevention.map((t: string, idx: number) => (
+                          <li key={idx}>{t}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-300 pl-1 leading-relaxed">
+                        {String(diagnosticResult.treatments.prevention)}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <button
@@ -330,6 +386,54 @@ export default function AgronomoPwaApp() {
               </button>
             </div>
           )}
+
+          {/* SECCIÓN FAQ PARA AGRICULTORES Y LLMs (GEO & SEO 2026) */}
+          <section className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-5 shadow-xl space-y-3 mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-lg">❓</span>
+              <h3 className="font-bold text-sm text-emerald-300">Preguntas Frecuentes (FAQ Agrícola GE)</h3>
+            </div>
+            
+            <details className="group bg-black/40 rounded-2xl p-3.5 border border-white/5 [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer items-center justify-between text-xs font-semibold text-white">
+                <span>¿Cómo funciona el diagnóstico de plantas con IA en Guinea Ecuatorial?</span>
+                <span className="shrink-0 transition duration-300 group-open:-rotate-180">▼</span>
+              </summary>
+              <p className="mt-2 text-[11px] leading-relaxed text-gray-300">
+                Solo necesitas apuntar la cámara de tu teléfono hacia la hoja, tallo o fruto enfermo. Nuestra inteligencia artificial analiza la imagen en segundos comparándola con más de 300.000 especies y enfermedades tropicales comunes en Bioko, Litoral, Kie-Ntem, Centro Sur y Wele-Nzas (como la Mazorca Negra del cacao o el Mosaico de la yuca).
+              </p>
+            </details>
+
+            <details className="group bg-black/40 rounded-2xl p-3.5 border border-white/5 [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer items-center justify-between text-xs font-semibold text-white">
+                <span>¿Puedo usar la app en la finca si no tengo cobertura o saldo de internet?</span>
+                <span className="shrink-0 transition duration-300 group-open:-rotate-180">▼</span>
+              </summary>
+              <p className="mt-2 text-[11px] leading-relaxed text-gray-300">
+                ¡Sí! Agrónomo es una PWA (Progressive Web App) con tecnología Offline-First. La aplicación se instala en tu móvil y guarda la información en la memoria del dispositivo para permitirte tomar fotos y registrar cultivos en el campo sin necesidad de conexión activa.
+              </p>
+            </details>
+
+            <details className="group bg-black/40 rounded-2xl p-3.5 border border-white/5 [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer items-center justify-between text-xs font-semibold text-white">
+                <span>¿Cuánto cuesta usar Agrónomo y cómo se pagan las tarjetas prepago?</span>
+                <span className="shrink-0 transition duration-300 group-open:-rotate-180">▼</span>
+              </summary>
+              <p className="mt-2 text-[11px] leading-relaxed text-gray-300">
+                Todos los nuevos usuarios reciben 5 escaneos gratuitos. Para uso continuo, no necesitas tarjetas bancarias: puedes adquirir tarjetas rasca físicas prepago en Francos CFA (2.000 FCFA por 1 mes, 5.000 FCFA por 3 meses) en quioscos y cooperativas autorizadas de Malabo y Bata.
+              </p>
+            </details>
+
+            <details className="group bg-black/40 rounded-2xl p-3.5 border border-white/5 [&_summary::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer items-center justify-between text-xs font-semibold text-white">
+                <span>¿Cómo descargo la aplicación oficial para teléfonos Android?</span>
+                <span className="shrink-0 transition duration-300 group-open:-rotate-180">▼</span>
+              </summary>
+              <p className="mt-2 text-[11px] leading-relaxed text-gray-300">
+                Puedes descargar directamente el instalador oficial APK firmado (paquete gq.agronomo.app) pulsando el botón verde «Descargar APK» situado en la parte superior de esta página, o instalarla como acceso directo PWA en la pantalla de inicio de tu navegador.
+              </p>
+            </details>
+          </section>
         </main>
       )}
 
